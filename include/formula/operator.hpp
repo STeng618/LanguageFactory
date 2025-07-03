@@ -32,6 +32,8 @@ namespace Langfact{
         Precedence m_precedence;
 
         public:
+        int m_expected_num_args;
+
         Operator(
             Token::ChildrenList children = {}, 
             Precedence precedence = UNDEFINED, 
