@@ -19,8 +19,8 @@ namespace Langfact {
             : m_children{std::move(children)}
         {}
 
-        void set_tokens(ChildrenList tokens) {
-            m_children = std::move(tokens);
+        virtual void set_children(ChildrenList&& children) {
+            m_children = std::move(children);
         }
 
         virtual void identify() const {
