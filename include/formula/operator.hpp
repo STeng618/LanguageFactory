@@ -8,6 +8,7 @@
 namespace Langfact{
 
     using Precedence = int; 
+    constexpr Precedence UNDEFINED = -1; 
     constexpr Precedence GE = 0; 
     constexpr Precedence GT = 0; 
     constexpr Precedence LE = 0; 
@@ -19,8 +20,12 @@ namespace Langfact{
     constexpr Precedence Subtract = 2; 
     constexpr Precedence Multiply = 3; 
     constexpr Precedence Divide = 3;
-    constexpr Precedence SheetRef = 4; 
-    constexpr Precedence RangeDivider = 5; 
+    constexpr Precedence Exponentiate = 4; 
+    constexpr Precedence UnaryPlus = 5; 
+    constexpr Precedence Negate = 5;
+    constexpr Precedence DoubleUnary = 5;
+    constexpr Precedence SheetRef = 6; 
+    constexpr Precedence RangeSeparator = 7; 
 
     class Operator: public Formula {
         protected: 
