@@ -34,6 +34,15 @@ namespace Langfact{
         public:
         Operator(
             Token::ChildrenList children = {}, 
+            Precedence precedence = UNDEFINED, 
+            int expected_num_args = 0
+        ): Formula(std::move(children)), m_precedence(precedence), m_expected_num_args(expected_num_args) {}
+
+        bool has_lower_equal_precedence_than(const std::unique_ptr<Operator>& op) {
+            return m_precedence <= op->m_precedence;
+        }
+    };
+
     class UnaryOp: public Operator {
         public:
         UnaryOp(
