@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string> 
+#include <set>
 #include <formula/formula.hpp>
 
 namespace Langfact{
@@ -61,112 +62,179 @@ namespace Langfact{
         ): Operator(std::move(children), precedence, 2) {}
     };
 
+    class OpGE: public BinaryOp {
+        public:
+        OpGE(
+            Token::ChildrenList children = {}
+        ): BinaryOp(std::move(children), GE) {}
+        void identify() const override {
+            std::cout << ">=";
         }
-
     };
 
-    class OperatorGE: public Operator {
+    class OpGT: public BinaryOp {
         public:
-        OperatorGE(
+        OpGT(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), GE) {}
+        ): BinaryOp(std::move(children), GT) {}
+        void identify() const override {
+            std::cout << ">";
+        }
     };
 
-    class OperatorGT: public Operator {
+    class OpLT: public BinaryOp {
         public:
-        OperatorGT(
+        OpLT(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), GT) {}
+        ): BinaryOp(std::move(children), LT) {}
+        void identify() const override {
+            std::cout << "<";
+        }
     };
 
-    class OperatorLE: public Operator {
+    class OpLE: public BinaryOp {
         public:
-        OperatorLE(
+        OpLE(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), LE) {}
+        ): BinaryOp(std::move(children), LE) {}
+        void identify() const override {
+            std::cout << "<=";
+        }
     };
 
-    class OperatorLT: public Operator {
+
+    class OpEQ: public BinaryOp {
         public:
-        OperatorLT(
+        OpEQ(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), LT) {}
-    };
-    class OperatorEQ: public Operator {
-        public:
-        OperatorEQ(
-            Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), EQ) {}
+        ): BinaryOp(std::move(children), EQ) {}
+        void identify() const override {
+            std::cout << "=";
+        }
     };
 
-    class OperatorNE: public Operator {
+    class OpNE: public BinaryOp {
         public:
-        OperatorNE(
+        OpNE(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), NE) {}
+        ): BinaryOp(std::move(children), NE) {}
+        void identify() const override {
+            std::cout << "<>";
+        }
     };
 
-    class OperatorConcat: public Operator {
+    class OpConcat: public BinaryOp {
         public:
-        OperatorConcat( 
+        OpConcat(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), Concat) {}
+        ): BinaryOp(std::move(children), Concat) {}
+        void identify() const override {
+            std::cout << "&";
+        }
     };
 
-    class OperatorSum: public Operator {
+    class OpSum: public BinaryOp {
         public:
-        OperatorSum(
+        OpSum(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), Sum) {}
+        ): BinaryOp(std::move(children), Sum) {}
+        void identify() const override {
+            std::cout << "+";
+        }
     };
 
-    class OperatorSubtract: public Operator {
+    class OpSubtract: public BinaryOp {
         public:
-        OperatorSubtract(
+        OpSubtract(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), Subtract) {}
+        ): BinaryOp(std::move(children), Subtract) {}
+        void identify() const override {
+            std::cout << "-";
+        }
     };
 
-    class OperatorMultiply: public Operator {
+    class OpDivide: public BinaryOp {
         public:
-        OperatorMultiply(
+        OpDivide(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), Multiply) {}
+        ): BinaryOp(std::move(children), Divide) {}
+        void identify() const override {
+            std::cout << "/";
+        }
     };
 
-    class OperatorDivide: public Operator {
+    class OpMultiply: public BinaryOp {
         public:
-        OperatorDivide(
+        OpMultiply(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), Divide) {}
+        ): BinaryOp(std::move(children), Multiply) {}
+        void identify() const override {
+            std::cout << "*";
+        }
     };
 
-    class OperatorSheetRef: public Operator {
+
+    class OpExponentiate: public BinaryOp {
         public:
-        OperatorSheetRef(
+        OpExponentiate(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), SheetRef){}
+        ): BinaryOp(std::move(children), Exponentiate) {}
+        void identify() const override {
+            std::cout << "^";
+        }
     };
 
-    class OperatorRangeDivider: public Operator {
+    class OpUnaryPlus: public UnaryOp {
         public:
-        OperatorRangeDivider(
+        OpUnaryPlus(
             Token::ChildrenList children = {}
-        )
-        : Operator(std::move(children), RangeDivider){}
+        ): UnaryOp(std::move(children), UnaryPlus) {}
+        void identify() const override {
+            std::cout << "U+";
+        }
     };
+
+    class OpNegate: public UnaryOp {
+        public:
+        OpNegate(
+            Token::ChildrenList children = {}
+        ): UnaryOp(std::move(children), Negate) {}
+        void identify() const override {
+            std::cout << "U-";
+        }
+    };
+
+    class OpDoubleUnary: public UnaryOp {
+        public:
+        OpDoubleUnary(
+            Token::ChildrenList children = {}
+        ): UnaryOp(std::move(children), DoubleUnary) {}
+        void identify() const override {
+            std::cout << "U--";
+        }
+    };
+
+    class OpSheetRef: public BinaryOp {
+        public:
+        OpSheetRef(
+            Token::ChildrenList children = {}
+        ): BinaryOp(std::move(children), SheetRef) {}
+        void identify() const override {
+            std::cout << "!";
+        }
+    };
+
+    class OpRangeSeparator: public BinaryOp {
+        public:
+        OpRangeSeparator(
+            Token::ChildrenList children = {}
+        ): BinaryOp(std::move(children), RangeSeparator) {}
+        void identify() const override {
+            std::cout << ":";
+        }
+    };
+
+
 }
 
-#endif 
+#endif
