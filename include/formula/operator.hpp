@@ -34,16 +34,22 @@ namespace Langfact{
         public:
         Operator(
             Token::ChildrenList children = {}, 
-            Precedence precedence = 0
-        )
-        : Formula(std::move(children)), m_precedence(precedence) {}
+    class UnaryOp: public Operator {
+        public:
+        UnaryOp(
+            Token::ChildrenList children = {}, 
+            Precedence precedence = UNDEFINED
+        ): Operator(std::move(children), precedence, 1) {}
+    };
 
-        std::pair<int,int> evaluate_output_dim() override {
-            return {1, 1};
-        }
+    class BinaryOp: public Operator {
+        public:
+        BinaryOp(
+            Token::ChildrenList children = {}, 
+            Precedence precedence = UNDEFINED
+        ): Operator(std::move(children), precedence, 2) {}
+    };
 
-        bool operator<(const Operator& other) const {
-            return m_precedence < other.m_precedence;
         }
 
     };
