@@ -15,7 +15,7 @@ namespace Langfact {
         ChildrenList m_children {};
 
         public: 
-        Token(ChildrenList children = {}) 
+        Token(ChildrenList&& children = {}) 
             : m_children{std::move(children)}
         {}
 
@@ -24,7 +24,19 @@ namespace Langfact {
         }
 
         virtual void identify() const {
-            std::cout << "Generic token " << this << std::endl;
+            std::cout << "<class:Generic>";
+        }
+
+        void print() const {
+            identify();  
+            if (!m_children.size()) return;
+
+            printf("(");
+            for (size_t i = 0; i < m_children.size(); i++) {
+                m_children[i]->print();
+                if (i + 1 < m_children.size()) printf(", ");
+            }
+            printf(")");
         }
 
         virtual std::pair<int,int> evaluate_output_dim() {
