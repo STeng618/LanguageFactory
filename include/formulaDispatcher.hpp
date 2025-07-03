@@ -8,14 +8,11 @@
 namespace Langfact {
 
     class FormulaDispatcher {
-        public:
-        using FormulaCreator = std::function<std::unique_ptr<Formula>(Token::ChildrenList)>;
-
         private:
-        static const std::unordered_map<std::string_view, FormulaCreator> FUNC_MAP;
+        static const std::unordered_map<std::string_view, std::function<std::unique_ptr<Formula>(Token::ChildrenList&&)>> FUNC_MAP;
 
         public:
-        static std::unique_ptr<Formula> dispatch(std::string_view name, Token::ChildrenList children = {});
+        static std::unique_ptr<Formula> dispatch(std::string_view name, Token::ChildrenList&& children = {});
     };
 }
 
