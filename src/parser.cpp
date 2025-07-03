@@ -1,0 +1,216 @@
+#include <iostream> 
+#include <stack> 
+#include <set>
+#include <algorithm>
+#include <token.hpp>
+#include <emptyToken.hpp>
+#include <wrapper/wrapper.hpp>
+#include <wrapper/formulaWrapper.hpp>
+#include <parser.hpp>
+#include <formulaDispatcher.hpp>
+#include <operatorDispatcher.hpp>
+#include <valueDispatcher.hpp>
+
+using namespace Langfact;
+
+const std::set<char> Parser::BREAKING_CHARS = {
+    '+', '-', '*', '/', '&', '>', '<', '=', '!', ':','^', '(', ')', ',', ' '
+}; 
+
+template <typename T>
+void print_stack(const T& container) {
+    for (auto& x: container) {
+        if(!x) {
+            std::cout << "nullptr, ";
+        } else {
+            x->identify();
+            std::cout << ", "; 
+        }
+    }
+    std::cout << std::endl;
+}
+
+std::unique_ptr<Token> Parser::parse (std::string expr) {
+
+    int idx = 0; 
+    int n = (int)expr.size();
+
+    while (idx < n && (expr[idx] == '\n' || expr[idx] == ' ')) idx++;
+
+    if (idx == n) {
+        return std::make_unique<EmptyToken> ();
+    }
+
+    if (expr[idx] != '=') {
+        return ValueDispatcher::dispatch(expr); 
+    }
+
+    // Wrap expression in ()
+    expr[idx] = '(';
+    expr.push_back(')'); 
+    n++;
+
+    int formula_start = -1; 
+    std::vector<std::unique_ptr<Token>> token_stack{}; 
+    std::vector<std::unique_ptr<Operator>> operator_stack{}; 
+    bool has_token_since_last_nullptr = false;
+
+    auto can_trigger_latest_op = [&]() -> bool {
+        if (operator_stack.empty()) return false;
+        if (!operator_stack.back()) return false; 
+        int expected_args = operator_stack.back()->m_expected_num_args;
+        return token_stack.size() >= (size_t)expected_args; 
+    }; 
+
+    auto trigger_one_op = [&]() -> void {
+        auto op = std::move(operator_stack.back());
+        operator_stack.pop_back();
+
+        const int n = op->m_expected_num_args;
+        auto from = token_stack.end() - n;
+
+        std::vector<std::unique_ptr<Token>> args;
+        args.reserve(n);
+        for (auto it = from; it != token_stack.end(); it++) {
+            args.push_back(std::move(*it));
+        }
+
+        token_stack.erase(from, token_stack.end());
+        op->set_children(std::move(args));
+        token_stack.push_back(std::move(op));
+    };
+
+    auto insert_op_into_op_stack = [&](std::unique_ptr<Operator> op) -> void {
+        while (
+            can_trigger_latest_op() && op->has_lower_equal_precedence_than(operator_stack.back())
+        ) {
+            trigger_one_op();
+        }
+        operator_stack.push_back(std::move(op));
+    };
+
+    auto clear_op_stack = [&]() -> void {
+        while (can_trigger_latest_op()) trigger_one_op(); 
+    };
+
+    while (idx < n) {
+
+        if (expr[idx] == ' ' or expr[idx] == '\n') {
+            idx = idx + 1;
+            continue;
+        }
+
+        if (expr[idx] == ',') {
+            clear_op_stack();
+            if (!has_token_since_last_nullptr) {
+                token_stack.push_back(std::make_unique<EmptyToken>());
+            }
+            operator_stack.push_back(nullptr); // A nullptr is used as a "barrier"
+            has_token_since_last_nullptr = false;
+            idx++; 
+            continue;
+        }
+
+        if (expr[idx] == '\'' || expr[idx] == '\"') {
+            int str_start = idx++;
+            char terminate_target = expr[idx];
+            while (idx < n && expr[idx] != terminate_target) idx++;
+            if (idx == n) {
+                throw std::runtime_error("Unterminated string literal");
+            }
+            token_stack.push_back(ValueDispatcher::dispatch(expr.substr(str_start, idx - str_start + 1)));
+            has_token_since_last_nullptr = true;
+            idx++;  
+            continue;
+        } 
+
+        if (expr[idx] == '(') {
+            if (formula_start == -1) {
+                token_stack.push_back(std::make_unique<Wrapper>());
+            } else {
+                token_stack.push_back(std::make_unique<FormulaWrapper>(
+                    FormulaDispatcher::dispatch(expr.substr(formula_start, idx - formula_start))
+                ));
+                formula_start = -1; 
+            }
+            operator_stack.push_back(nullptr);
+            has_token_since_last_nullptr = false;
+            idx++; 
+            continue; 
+        }
+
+        if (expr[idx] == ')') {
+            clear_op_stack();
+
+            if (!has_token_since_last_nullptr) {
+                token_stack.push_back(std::make_unique<EmptyToken>());
+            }
+
+            int num_token_in_wrapper = 0; 
+            int num_token_total = static_cast<int>(token_stack.size());
+
+            while (
+                num_token_in_wrapper < num_token_total
+                && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper].get()) == nullptr
+            ) {
+                num_token_in_wrapper++;
+            }
+            if (num_token_in_wrapper == num_token_total) {
+                throw std::runtime_error("No opening wrapper token!");
+            }
+
+            Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper].get()); 
+            Token::ChildrenList children {};
+            children.reserve(num_token_in_wrapper);
+            for (int i = 0; i < num_token_in_wrapper; i++) {
+                children.push_back(std::move(token_stack[num_token_total - num_token_in_wrapper + i]));
+            }
+            owner->set_children(std::move(children));
+
+            for (int i = 0; i < num_token_in_wrapper; i++) {
+                token_stack.pop_back();
+                assert(!operator_stack.back()); 
+                operator_stack.pop_back();
+            }
+            auto closed_token {owner->close()};
+            bool is_able_to_close = closed_token != nullptr;
+            if (is_able_to_close) {
+                token_stack.pop_back();
+                token_stack.push_back(std::move(closed_token));
+            }
+            has_token_since_last_nullptr = true;
+            idx++;
+            continue; 
+        }
+
+        if (Parser::BREAKING_CHARS.find(expr[idx]) == Parser::BREAKING_CHARS.end()) {
+            int start_idx = idx++; 
+            while (idx < n && Parser::BREAKING_CHARS.find(expr[idx]) == Parser::BREAKING_CHARS.end()) {
+                idx++;
+            }
+            if (idx < n && expr[idx] == '(') {
+                formula_start = start_idx;
+                continue; 
+            }
+            token_stack.push_back(ValueDispatcher::dispatch(expr.substr(start_idx, idx - start_idx)));
+            has_token_since_last_nullptr = true;
+            continue; 
+        }
+
+        std::string_view potential_op {expr.substr(idx, std::min(OperatorDispatcher::MAX_OP_LEN, n - idx))};
+        auto result {OperatorDispatcher::dispatch(potential_op, has_token_since_last_nullptr)};
+        
+        if (result.second) {
+            insert_op_into_op_stack(std::move(result.first));
+            idx += result.second;
+            continue; 
+        }
+
+        throw std::runtime_error("Unrecognised case"); 
+    }
+    if (token_stack.size() != 1) {
+        throw std::runtime_error("Unable to parse");
+    }
+
+    return std::move(token_stack.front());
+}
