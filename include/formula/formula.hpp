@@ -7,21 +7,24 @@
 
 namespace Langfact{
     class Formula: public Token {
-        public:
-        Formula(Token::ChildrenList children = {}): Token(std::move(children)) {}
+        private: 
+        std::string m_name;
 
-        std::pair<int,int> evaluate_output_dim() override {
-            return {-1, -1};
-        }
+        public:
+        Formula(
+            Token::ChildrenList children = {},
+            std::string_view name = "GENERIC"
+        ): Token(std::move(children)), m_name(name) {}
+
+        void identify() const override { std::cout << "<class:Formula>" << m_name;}
     };
 
     class Xlookup: public Formula {
         public: 
-        Xlookup(Token::ChildrenList children = {}): Formula(std::move(children)) {}
-
-        void identify() const override {
-            std::cout << "Xlookup " << this << std::endl;
-        }
+        Xlookup(
+            Token::ChildrenList children = {},
+            std::string_view name = "XLOOKUP" 
+        ): Formula(std::move(children), name) {}
     };
 }
 
