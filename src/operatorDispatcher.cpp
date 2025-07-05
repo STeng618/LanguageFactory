@@ -52,6 +52,9 @@ const std::unordered_map<std::string_view, std::function<std::unique_ptr<Operato
     }},
     {"u+", [](Langfact::Token::ChildrenList&& children) {
         return std::make_unique<Langfact::OpUnaryPlus>(std::move(children));
+    }},
+    {"y%", [](Langfact::Token::ChildrenList&& children) {
+        return std::make_unique<Langfact::OpPercent>(std::move(children));
     }}
 };
 
