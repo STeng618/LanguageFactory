@@ -189,7 +189,7 @@ namespace Langfact{
         public:
         OpExponentiate(
             Token::ChildrenList children = {}
-        ): BinaryOp(std::move(children), Exponentiate) {}
+        ): BinaryOp(std::move(children), Exponentiate, Associativity::RIGHT) {}
         void identify() const override {
             std::cout << "^";
         }
