@@ -12,7 +12,7 @@ namespace Langfact {
         static const std::set<char> BREAKING_CHARS; 
         
         public: 
-        static std::unique_ptr<Token> parse(std::string_view expr);
+        static std::unique_ptr<Token> parse(std::string expr);
     };
 }
 
