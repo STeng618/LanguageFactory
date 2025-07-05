@@ -49,8 +49,15 @@ namespace Langfact{
         Operator(
             Token::ChildrenList children = {}, 
             Precedence precedence = UNDEFINED, 
-            int expected_num_args = 0
-        ): Formula(std::move(children)), m_precedence(precedence), m_expected_num_args(expected_num_args) {}
+            int expected_num_args = 0, 
+            Associativity associativity = Associativity::LEFT, 
+            UnaryPosition unary_position = UnaryPosition::UNDEFINED
+        ): 
+        Formula(std::move(children)), 
+        m_precedence(precedence), 
+        m_expected_num_args(expected_num_args), 
+        m_associativity(associativity),
+        m_unary_position(unary_position) {}
 
         bool has_lower_precedence_than(const std::unique_ptr<Operator>& op) {
             return m_precedence < op->m_precedence;
@@ -64,16 +71,19 @@ namespace Langfact{
         protected:
         UnaryOp(
             Token::ChildrenList children = {}, 
-            Precedence precedence = UNDEFINED
-        ): Operator(std::move(children), precedence, 1) {}
+            Precedence precedence = UNDEFINED,
+            Associativity associativity = Associativity::RIGHT,
+            UnaryPosition unary_position = UnaryPosition::PREFIX
+        ): Operator(std::move(children), precedence, 1, associativity, unary_position) {}
     };
 
     class BinaryOp: public Operator {
         protected:
         BinaryOp(
             Token::ChildrenList children = {}, 
-            Precedence precedence = UNDEFINED
-        ): Operator(std::move(children), precedence, 2) {}
+            Precedence precedence = UNDEFINED, 
+            Associativity associativity = Associativity::LEFT 
+        ): Operator(std::move(children), precedence, 2, associativity) {}
     };
 
     class OpGE: public BinaryOp {
