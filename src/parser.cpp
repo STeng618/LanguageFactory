@@ -199,11 +199,11 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         }
 
         std::string_view potential_op {expr.substr(idx, std::min(OperatorDispatcher::MAX_OP_LEN, n - idx))};
-        auto result {OperatorDispatcher::dispatch(potential_op, has_token_since_last_nullptr)};
-        
-        if (result.second) {
-            insert_op_into_op_stack(std::move(result.first));
-            idx += result.second;
+        auto op_len {OperatorDispatcher::dispatch(potential_op, has_a_prior_token)};
+        if (op_len.second) {
+            has_a_prior_token = op_len.first->m_expected_num_args == 1 && op_len.first->m_unary_position == UnaryPosition::POSTFIX;
+            insert_op_into_op_stack(std::move(op_len.first));
+            idx += op_len.second;
             continue; 
         }
 
