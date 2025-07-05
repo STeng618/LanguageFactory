@@ -39,8 +39,15 @@ namespace Langfact {
             printf(")");
         }
 
-        virtual std::pair<int,int> evaluate_output_dim() {
-            return {-1, -1};
+        void print_tree(int indent = 0) const {
+            for (int i = 0; i < indent; i++) {
+                printf(" ");
+            }
+            identify();
+            for (auto& child: m_children) {
+                printf("\n");
+                child->print_tree(indent + 3);
+            }
         }
 
         virtual ~Token() = default;
