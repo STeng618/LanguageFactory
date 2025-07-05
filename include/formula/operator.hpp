@@ -235,7 +235,16 @@ namespace Langfact{
         }
     };
 
-
+    class OpPercent: public UnaryOp {
+        public:
+        OpPercent(
+            Token::ChildrenList children = {}
+        ): UnaryOp(std::move(children), Percent, Associativity::RIGHT, UnaryPosition::POSTFIX) {}
+        void identify() const override {
+            std::cout << "%";
+        }
+    };
+    
 }
 
 #endif
