@@ -22,11 +22,11 @@ namespace Langfact{
     constexpr Precedence Multiply = 3; 
     constexpr Precedence Divide = 3;
     constexpr Precedence Exponentiate = 4; 
-    constexpr Precedence UnaryPlus = 5; 
-    constexpr Precedence Negate = 5;
-    constexpr Precedence DoubleUnary = 5;
-    constexpr Precedence SheetRef = 6; 
-    constexpr Precedence RangeSeparator = 7; 
+    constexpr Precedence Percent = 5;
+    constexpr Precedence UnaryPlus = 6; 
+    constexpr Precedence Negate = 6;
+    constexpr Precedence SheetRef = 7; 
+    constexpr Precedence RangeSeparator = 8; 
 
     class Operator: public Formula {
         protected: 
