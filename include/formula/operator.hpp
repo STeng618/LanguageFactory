@@ -58,7 +58,7 @@ namespace Langfact{
     };
 
     class UnaryOp: public Operator {
-        public:
+        protected:
         UnaryOp(
             Token::ChildrenList children = {}, 
             Precedence precedence = UNDEFINED
@@ -66,7 +66,7 @@ namespace Langfact{
     };
 
     class BinaryOp: public Operator {
-        public:
+        protected:
         BinaryOp(
             Token::ChildrenList children = {}, 
             Precedence precedence = UNDEFINED
