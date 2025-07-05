@@ -204,16 +204,6 @@ namespace Langfact{
         }
     };
 
-    class OpDoubleUnary: public UnaryOp {
-        public:
-        OpDoubleUnary(
-            Token::ChildrenList children = {}
-        ): UnaryOp(std::move(children), DoubleUnary) {}
-        void identify() const override {
-            std::cout << "U--";
-        }
-    };
-
     class OpSheetRef: public BinaryOp {
         public:
         OpSheetRef(

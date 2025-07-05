@@ -47,10 +47,7 @@ const std::unordered_map<std::string_view, std::function<std::unique_ptr<Operato
     {"b^", [](Langfact::Token::ChildrenList&& children) {
         return std::make_unique<Langfact::OpExponentiate>(std::move(children));
     }},
-    {"u--", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpDoubleUnary>(std::move(children));
-    }},
-    {"u-", [](Langfact::Token::ChildrenList&& children) {
+    {"n-", [](Langfact::Token::ChildrenList&& children) {
         return std::make_unique<Langfact::OpNegate>(std::move(children));
     }},
     {"u+", [](Langfact::Token::ChildrenList&& children) {
