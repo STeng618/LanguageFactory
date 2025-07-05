@@ -74,7 +74,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         }
         
         token_stack.erase(from, token_stack.end());
-        operator_stack.back()->set_children(args);
+        operator_stack.back()->set_children(std::move(args));
         token_stack.push_back(std::move(operator_stack.back()));
         operator_stack.pop_back();
     };
