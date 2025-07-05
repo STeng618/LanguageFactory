@@ -55,6 +55,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     std::vector<std::unique_ptr<Operator>> operator_stack{}; 
     bool has_token_since_last_nullptr = false;
 
+    // This is entirely based on whether the #tokens meets the #expected arguments
     auto can_trigger_latest_op = [&]() -> bool {
         if (operator_stack.empty()) return false;
         if (!operator_stack.back()) return false; 
@@ -63,21 +64,18 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     }; 
 
     auto trigger_one_op = [&]() -> void {
-        auto op = std::move(operator_stack.back());
-        operator_stack.pop_back();
-
-        const int n = op->m_expected_num_args;
-        auto from = token_stack.end() - n;
-
+        auto from = token_stack.end() - operator_stack.back()->m_expected_num_args;
+        
         std::vector<std::unique_ptr<Token>> args;
-        args.reserve(n);
+        args.reserve(operator_stack.back()->m_expected_num_args);
         for (auto it = from; it != token_stack.end(); it++) {
             args.push_back(std::move(*it));
         }
-
+        
         token_stack.erase(from, token_stack.end());
-        op->set_children(std::move(args));
-        token_stack.push_back(std::move(op));
+        operator_stack.back()->set_children(args);
+        token_stack.push_back(std::move(operator_stack.back()));
+        operator_stack.pop_back();
     };
 
     auto insert_op_into_op_stack = [&](std::unique_ptr<Operator> op) -> void {
