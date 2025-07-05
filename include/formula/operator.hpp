@@ -28,6 +28,17 @@ namespace Langfact{
     constexpr Precedence SheetRef = 7; 
     constexpr Precedence RangeSeparator = 8; 
 
+    enum class Associativity {
+        LEFT, 
+        RIGHT
+    };
+
+    enum class UnaryPosition {
+        UNDEFINED,
+        PREFIX, 
+        POSTFIX
+    };
+
     class Operator: public Formula {
         protected: 
         Precedence m_precedence;
