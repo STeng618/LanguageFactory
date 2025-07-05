@@ -14,7 +14,7 @@
 using namespace Langfact;
 
 const std::set<char> Parser::BREAKING_CHARS = {
-    '+', '-', '*', '/', '&', '>', '<', '=', '!', ':','^', '(', ')', ',', ' '
+    '+', '-', '*', '/', '&', '>', '<', '=', '!', ':','^', '(', ')', ',', ' ', '%'
 }; 
 
 template <typename T>
