@@ -80,7 +80,10 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
 
     auto insert_op_into_op_stack = [&](std::unique_ptr<Operator> op) -> void {
         while (
-            can_trigger_latest_op() && op->has_lower_equal_precedence_than(operator_stack.back())
+            can_trigger_latest_op() && (
+                op->has_lower_precedence_than(operator_stack.back()) 
+                || (op->has_equal_precedence_as(operator_stack.back()) && op->m_associativity == Associativity::LEFT)
+            )
         ) {
             trigger_one_op();
         }
