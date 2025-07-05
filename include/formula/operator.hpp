@@ -45,6 +45,8 @@ namespace Langfact{
 
         public:
         int m_expected_num_args;
+        Associativity m_associativity;
+        UnaryPosition m_unary_position;
 
         Operator(
             Token::ChildrenList children = {}, 
