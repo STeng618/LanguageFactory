@@ -10,6 +10,7 @@
 #include <formulaDispatcher.hpp>
 #include <operatorDispatcher.hpp>
 #include <valueDispatcher.hpp>
+#include <formula/operator.hpp>
 
 using namespace Langfact;
 
@@ -53,7 +54,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     int formula_start = -1; 
     std::vector<std::unique_ptr<Token>> token_stack{}; 
     std::vector<std::unique_ptr<Operator>> operator_stack{}; 
-    bool has_token_since_last_nullptr = false;
+    bool has_a_prior_token = false;
 
     // This is entirely based on whether the #tokens meets the #expected arguments
     auto can_trigger_latest_op = [&]() -> bool {
@@ -95,19 +96,19 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     };
 
     while (idx < n) {
-
+        
         if (expr[idx] == ' ' or expr[idx] == '\n') {
-            idx = idx + 1;
+            idx++;
             continue;
         }
 
         if (expr[idx] == ',') {
             clear_op_stack();
-            if (!has_token_since_last_nullptr) {
+            if (!has_a_prior_token) {
                 token_stack.push_back(std::make_unique<EmptyToken>());
             }
             operator_stack.push_back(nullptr); // A nullptr is used as a "barrier"
-            has_token_since_last_nullptr = false;
+            has_a_prior_token = false;
             idx++; 
             continue;
         }
@@ -120,7 +121,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
                 throw std::runtime_error("Unterminated string literal");
             }
             token_stack.push_back(ValueDispatcher::dispatch(expr.substr(str_start, idx - str_start + 1)));
-            has_token_since_last_nullptr = true;
+            has_a_prior_token = true;
             idx++;  
             continue;
         } 
@@ -135,7 +136,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
                 formula_start = -1; 
             }
             operator_stack.push_back(nullptr);
-            has_token_since_last_nullptr = false;
+            has_a_prior_token = false;
             idx++; 
             continue; 
         }
@@ -143,7 +144,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         if (expr[idx] == ')') {
             clear_op_stack();
 
-            if (!has_token_since_last_nullptr) {
+            if (!has_a_prior_token) {
                 token_stack.push_back(std::make_unique<EmptyToken>());
             }
 
@@ -179,7 +180,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
                 token_stack.pop_back();
                 token_stack.push_back(std::move(closed_token));
             }
-            has_token_since_last_nullptr = true;
+            has_a_prior_token = true;
             idx++;
             continue; 
         }
@@ -194,7 +195,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
                 continue; 
             }
             token_stack.push_back(ValueDispatcher::dispatch(expr.substr(start_idx, idx - start_idx)));
-            has_token_since_last_nullptr = true;
+            has_a_prior_token = true;
             continue; 
         }
 
