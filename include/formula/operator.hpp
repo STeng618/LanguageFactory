@@ -52,8 +52,11 @@ namespace Langfact{
             int expected_num_args = 0
         ): Formula(std::move(children)), m_precedence(precedence), m_expected_num_args(expected_num_args) {}
 
-        bool has_lower_equal_precedence_than(const std::unique_ptr<Operator>& op) {
-            return m_precedence <= op->m_precedence;
+        bool has_lower_precedence_than(const std::unique_ptr<Operator>& op) {
+            return m_precedence < op->m_precedence;
+        }
+        bool has_equal_precedence_as(const std::unique_ptr<Operator>& op) {
+            return m_precedence == op->m_precedence;
         }
     };
 
