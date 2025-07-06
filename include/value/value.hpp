@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string> 
 #include <token.hpp>
+#include <typeinfo>
 
 namespace Langfact{
 
@@ -13,17 +14,10 @@ namespace Langfact{
         T m_content; 
 
         public:
-        Value<T>(T content, Token::ChildrenList children = {})
-        : Token(std::move(children)) 
-        , m_content(content)
-        {}
-
-        std::pair<int,int> evaluate_output_dim() override {
-            return {-1, -1};
-        }
+        Value<T>(T content): Token(), m_content(content) {}
 
         void identify() const override {
-            std::cout << m_content << std::endl;
+            std::cout << "<Value " << typeid(m_content).name() << ": " << m_content << ">";
         }
     };
 }
