@@ -41,9 +41,9 @@ const std::unordered_map<std::string_view, std::function<std::unique_ptr<Operato
     {"y!", [](Langfact::Token::ChildrenList&& children) {
         return std::make_unique<Langfact::OpSheetRef>(std::move(children));
     }},
-    {"y:", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpRangeSeparator>(std::move(children));
-    }},
+    // {"y:", [](Langfact::Token::ChildrenList&& children) {
+    //     return std::make_unique<Langfact::OpRangeSeparator>(std::move(children));
+    // }},
     {"y^", [](Langfact::Token::ChildrenList&& children) {
         return std::make_unique<Langfact::OpExponentiate>(std::move(children));
     }},
