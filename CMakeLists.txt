@@ -26,3 +26,12 @@ target_link_libraries(tests langfact_lib GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+add_subdirectory(third_party/benchmark)
+file(GLOB_RECURSE BENCHMARK_SOURCES "benchmarks/*.cpp")
+add_executable(benchmarks ${BENCHMARK_SOURCES})
+target_link_libraries(benchmarks
+  langfact_lib
+  benchmark::benchmark
+  benchmark::benchmark_main
+)
