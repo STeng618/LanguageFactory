@@ -11,7 +11,7 @@ std::unique_ptr<Token> ValueDispatcher::dispatch(std::string expr) {
         (expr[0] == '\'' && expr.back() == '\'') 
         || (expr[0] == '\"' && expr.back() == '\"') 
     ) {
-        return std::make_unique<Value<std::string>>(expr);
+        return std::make_unique<Value<std::string>>(expr.substr(1, expr.size() - 2));
     }
 
     try {
