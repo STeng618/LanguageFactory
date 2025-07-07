@@ -117,6 +117,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         if (expr[idx] == '\'' || expr[idx] == '\"') {
             int str_start = idx;
             char terminate_target = expr[idx];
+            idx++;
             while (idx < n && expr[idx] != terminate_target) idx++;
             if (idx == n) {
                 throw std::runtime_error("Unterminated string literal");
