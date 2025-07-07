@@ -4,6 +4,8 @@
 #include <map>
 #include <formula/formula.hpp>
 #include <formula/operator.hpp>
+#include <unordered_map>
+#include <functional>
 
 namespace Langfact {
 
