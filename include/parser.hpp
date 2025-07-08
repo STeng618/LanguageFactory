@@ -9,7 +9,7 @@ namespace Langfact {
 
     class Parser {
         private: 
-        static const std::set<char> BREAKING_CHARS; 
+        static const std::bitset<256> BREAKING_CHARS; 
         
         public: 
         static std::unique_ptr<Token> parse(std::string expr);

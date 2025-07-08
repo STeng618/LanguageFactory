@@ -15,9 +15,14 @@
 
 using namespace Langfact;
 
-const std::set<char> Parser::BREAKING_CHARS = {
-    '+', '-', '*', '/', '&', '>', '<', '=', '!', '^', '(', ')', ',', ' ', '%'
-}; 
+const std::bitset<256> Parser::BREAKING_CHARS = [] {
+    std::bitset<256> bs;
+    for (char c : {'+', '-', '*', '/', '&', '>', '<', '=', '!', '^', '(', ')', ',', ' ', '%'}) {
+        bs.set(static_cast<unsigned char>(c));
+    }
+    return bs;
+}();
+
 
 template <typename T>
 void print_stack(const T& container) {
@@ -187,9 +192,9 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
             continue; 
         }
 
-        if (Parser::BREAKING_CHARS.find(expr[idx]) == Parser::BREAKING_CHARS.end()) {
+        if (!Parser::BREAKING_CHARS[static_cast<unsigned int>(expr[idx])]) {
             int start_idx = idx++; 
-            while (idx < n && Parser::BREAKING_CHARS.find(expr[idx]) == Parser::BREAKING_CHARS.end()) {
+            while (idx < n && !Parser::BREAKING_CHARS[static_cast<unsigned int>(expr[idx])]) {
                 idx++;
             }
             if (idx < n && expr[idx] == '(') {
