@@ -5,6 +5,30 @@
 
 using namespace Langfact;
 
+static constexpr std::pair<bool,int> parse_int(std::string_view expr) {
+
+    size_t n = expr.size();
+    if (!n) return {false, 0};
+
+    size_t idx = 0; 
+    int multiplier = 1;
+    if (expr[0] == '-') {
+        idx++;
+        multiplier = -1;
+    }
+    if (idx == n) return {false, 0};
+
+    int ans = 0;
+    while (idx < n) {
+        int val = expr[idx] - '0';
+        if (val > 9 || val < 0) return {false, 0};
+        ans = ans * 10 + val;
+        idx++;
+    }
+    ans *= multiplier;
+    return {true, ans};
+}
+
 std::unique_ptr<Token> ValueDispatcher::dispatch(std::string expr) {
 
     if (
@@ -14,13 +38,8 @@ std::unique_ptr<Token> ValueDispatcher::dispatch(std::string expr) {
         return std::make_unique<Value<std::string>>(expr.substr(1, expr.size() - 2));
     }
 
-    try {
-        size_t idx;
-        int int_val = std::stoi(expr, &idx);
-        if (idx == expr.size()) {
-           return std::make_unique<Value<int>>(int_val); 
-        }
-    } catch (...) {}
+    auto isInt_intVal {parse_int(expr)};
+    if (isInt_intVal.first) return std::make_unique<Value<int>>(isInt_intVal.second);
 
     try {
         size_t idx;
