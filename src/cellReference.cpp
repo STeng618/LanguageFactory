@@ -37,10 +37,15 @@ std::unique_ptr<CellReference> CellReference::create(std::string_view expr) {
     bool are_rows_fully_undefined = !points[1] && !points[3];
     bool are_cols_awkward = !are_cols_fully_defined && !are_cols_fully_undefined;
     bool are_rows_awkward = !are_rows_fully_defined && !are_rows_fully_undefined;
-    if (!is_second_part && (!points[0] || !points[1])) return nullptr;
-    if (is_second_part && (are_cols_awkward || are_rows_awkward)) return nullptr;
-    if (are_cols_fully_defined && points[2] < points[0]) return nullptr;
-    if (are_rows_fully_defined && points[3] < points[1]) return nullptr;
+
+    bool has_errors = (
+        (!is_second_part && (!points[0] || !points[1])) 
+        || (is_second_part && (are_cols_awkward || are_rows_awkward)) 
+        || (are_cols_fully_defined && points[2] < points[0])
+        || (are_rows_fully_defined && points[3] < points[1])
+    );
+
+    if (has_errors) return nullptr;
     if (!is_second_part) {
         points[2] = points[0];
         points[3] = points[1];
