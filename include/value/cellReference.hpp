@@ -12,7 +12,7 @@ namespace Langfact {
         const std::string m_repr;
         const int m_l, m_t, m_r, m_b;
 
-        static std::unique_ptr<CellReference> create(std::string_view expr);
+        static CellReference* create(std::string_view expr);
         void identify() const override {
             std::cout << "<CellReference: " << m_repr << " l:" << m_l << " t:" << m_t  << " r:" << m_r << " b:" << m_b << ">";
         }

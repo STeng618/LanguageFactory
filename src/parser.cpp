@@ -12,6 +12,7 @@
 #include <operatorDispatcher.hpp>
 #include <valueDispatcher.hpp>
 #include <formula/operator.hpp>
+#include <arena.hpp>
 
 using namespace Langfact;
 
@@ -37,7 +38,7 @@ void print_stack(const T& container) {
     std::cout << std::endl;
 }
 
-std::unique_ptr<Token> Parser::parse (std::string expr) {
+Token* Parser::parse (std::string expr) {
 
     int idx = 0; 
     int n = (int)expr.size();
@@ -45,7 +46,8 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     while (idx < n && (expr[idx] == '\n' || expr[idx] == ' ')) idx++;
 
     if (idx == n) {
-        return std::make_unique<EmptyToken> ();
+        return Arena<EmptyToken>::get_instance().create();
+        // return std::make_unique<EmptyToken> ();
     }
 
     if (expr[idx] != '=') {
@@ -58,8 +60,8 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     n++;
 
     int formula_start = -1; 
-    std::vector<std::unique_ptr<Token>> token_stack{}; 
-    std::vector<std::unique_ptr<Operator>> operator_stack{}; 
+    std::vector<Token*> token_stack{}; 
+    std::vector<Operator*> operator_stack{};  
     bool has_a_prior_token = false;
 
     // This is entirely based on whether the #tokens meets the #expected arguments
@@ -73,10 +75,10 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
     auto trigger_one_op = [&]() -> void {
         auto from = token_stack.end() - operator_stack.back()->m_expected_num_args;
         
-        std::vector<std::unique_ptr<Token>> args;
+        std::vector<Token*> args; 
         args.reserve(operator_stack.back()->m_expected_num_args);
         for (auto it = from; it != token_stack.end(); it++) {
-            args.push_back(std::move(*it));
+            args.push_back(*it);
         }
         
         token_stack.erase(from, token_stack.end());
@@ -85,7 +87,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         operator_stack.pop_back();
     };
 
-    auto insert_op_into_op_stack = [&](std::unique_ptr<Operator> op) -> void {
+    auto insert_op_into_op_stack = [&](Operator* op) -> void {
         while (
             can_trigger_latest_op() && (
                 op->has_lower_precedence_than(operator_stack.back()) 
@@ -94,7 +96,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         ) {
             trigger_one_op();
         }
-        operator_stack.push_back(std::move(op));
+        operator_stack.push_back(op);
     };
 
     auto clear_op_stack = [&]() -> void {
@@ -111,7 +113,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
         if (expr[idx] == ',') {
             clear_op_stack();
             if (!has_a_prior_token) {
-                token_stack.push_back(std::make_unique<EmptyToken>());
+                token_stack.push_back(Arena<EmptyToken>::get_instance().create());
             }
             operator_stack.push_back(nullptr); // A nullptr is used as a "barrier"
             has_a_prior_token = false;
@@ -135,10 +137,10 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
 
         if (expr[idx] == '(') {
             if (formula_start == -1) {
-                token_stack.push_back(std::make_unique<Wrapper>());
+                token_stack.push_back(Arena<Wrapper>::get_instance().create());
             } else {
-                token_stack.push_back(std::make_unique<FormulaWrapper>(
-                    FormulaDispatcher::dispatch(expr.substr(formula_start, idx - formula_start))
+                token_stack.push_back(Arena<FormulaWrapper>::get_instance().create(
+                    FormulaDispatcher::dispatch(expr.substr(formula_start, idx - formula_start)) 
                 ));
                 formula_start = -1; 
             }
@@ -152,7 +154,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
             clear_op_stack();
 
             if (!has_a_prior_token) {
-                token_stack.push_back(std::make_unique<EmptyToken>());
+                token_stack.push_back(Arena<EmptyToken>::get_instance().create());
             }
 
             int num_token_in_wrapper = 0; 
@@ -160,7 +162,7 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
 
             while (
                 num_token_in_wrapper < num_token_total
-                && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper].get()) == nullptr
+                && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]) == nullptr
             ) {
                 num_token_in_wrapper++;
             }
@@ -168,11 +170,11 @@ std::unique_ptr<Token> Parser::parse (std::string expr) {
                 throw std::runtime_error("No opening wrapper token!");
             }
 
-            Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper].get()); 
+            Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
             Token::ChildrenList children {};
             children.reserve(num_token_in_wrapper);
             for (int i = 0; i < num_token_in_wrapper; i++) {
-                children.push_back(std::move(token_stack[num_token_total - num_token_in_wrapper + i]));
+                children.push_back(token_stack[num_token_total - num_token_in_wrapper + i]);
             }
             owner->set_children(std::move(children));
 

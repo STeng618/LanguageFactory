@@ -9,15 +9,17 @@ namespace Langfact {
 
     class Token {
         public: 
-        using ChildrenList = std::vector<std::unique_ptr<Token>>; 
-        
+        using ChildrenList = std::vector<Token*>;  
+
         protected:
         ChildrenList m_children {};
 
         public: 
         Token(ChildrenList&& children = {}) 
             : m_children{std::move(children)}
-        {}
+        {
+            m_children.reserve(10);
+        }
 
         virtual void set_children(ChildrenList&& children) {
             m_children = std::move(children);

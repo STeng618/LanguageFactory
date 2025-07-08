@@ -3,6 +3,7 @@
 
 #include <token.hpp>
 #include <emptyToken.hpp>
+#include <arena.hpp>
 
 namespace Langfact {
 
@@ -16,14 +17,14 @@ namespace Langfact {
             2. The wrapper wraps only one token -> transfers ownership of the child to caller 
             3. The wrapper wraps nothing -> returns an empty token 
         */
-        virtual std::unique_ptr<Token> close() {
+        virtual Token* close() {
             if (m_children.size() > 1) {
                 return nullptr;
             } 
             if (m_children.size() == 1) {
-                return std::move(m_children[0]);
+                return m_children[0];
             }
-            return std::make_unique<EmptyToken>();
+            return Arena<EmptyToken>::get_instance().create();
         }
         
         void identify() const override {

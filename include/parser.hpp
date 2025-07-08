@@ -12,7 +12,7 @@ namespace Langfact {
         static const std::bitset<256> BREAKING_CHARS; 
         
         public: 
-        static std::unique_ptr<Token> parse(std::string expr);
+        static Token* parse(std::string expr);
     };
 }
 

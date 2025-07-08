@@ -1,11 +1,12 @@
 #include <value/cellReference.hpp>
+#include <arena.hpp>
 
 #define MAX_EXCEL_COL (1 << 14)
 #define EXCEL_UNDERFINED 0
 
 using namespace Langfact;
 
-std::unique_ptr<CellReference> CellReference::create(std::string_view expr) {
+CellReference* CellReference::create(std::string_view expr) {
     std::array<int, 4> points {EXCEL_UNDERFINED, EXCEL_UNDERFINED, EXCEL_UNDERFINED, EXCEL_UNDERFINED}; // l, t, r, b
     bool is_second_part = false;
     short part_idx = 0;
@@ -50,5 +51,6 @@ std::unique_ptr<CellReference> CellReference::create(std::string_view expr) {
         points[2] = points[0];
         points[3] = points[1];
     }
-    return std::unique_ptr<CellReference>(new CellReference(expr, points[0], points[1], points[2], points[3]));
+    auto ptr = Arena<CellReference>::get_instance().reserve();
+    return new (ptr) CellReference(expr, points[0], points[1], points[2], points[3]);
 }

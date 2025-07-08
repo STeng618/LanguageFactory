@@ -61,10 +61,10 @@ namespace Langfact{
         m_associativity(associativity),
         m_unary_position(unary_position) {}
 
-        bool has_lower_precedence_than(const std::unique_ptr<Operator>& op) {
+        bool has_lower_precedence_than(const Operator* op) {
             return m_precedence < op->m_precedence;
         }
-        bool has_equal_precedence_as(const std::unique_ptr<Operator>& op) {
+        bool has_equal_precedence_as(const Operator* op) {
             return m_precedence == op->m_precedence;
         }
     };

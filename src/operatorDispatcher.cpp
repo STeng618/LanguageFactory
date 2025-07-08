@@ -1,66 +1,68 @@
 #include <map>
 #include <operatorDispatcher.hpp>
 #include <formula/operator.hpp>
+#include <arena.hpp>
 
 using namespace Langfact; 
 
-const std::unordered_map<std::string_view, std::function<std::unique_ptr<Operator>(Token::ChildrenList&&)>> OperatorDispatcher::OP_MAP = {
+const std::unordered_map<std::string_view, std::function<Operator*(Token::ChildrenList&&)>> OperatorDispatcher::OP_MAP = {
     {"y+", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpSum>(std::move(children));
+        return Arena<Langfact::OpSum>::get_instance().create(std::move(children));
     }},
     {"y-", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpSubtract>(std::move(children));
+        return Arena<Langfact::OpSubtract>::get_instance().create(std::move(children));
     }},
     {"y*", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpMultiply>(std::move(children));
+        return Arena<Langfact::OpMultiply>::get_instance().create(std::move(children));
     }},
     {"y/", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpDivide>(std::move(children));
+        return Arena<Langfact::OpDivide>::get_instance().create(std::move(children));
     }},
     {"y=", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpEQ>(std::move(children));
+        return Arena<Langfact::OpEQ>::get_instance().create(std::move(children));
     }},
     {"y<>", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpNE>(std::move(children));
+        return Arena<Langfact::OpNE>::get_instance().create(std::move(children));
     }},
     {"y>", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpGT>(std::move(children));
+        return Arena<Langfact::OpGT>::get_instance().create(std::move(children));
     }},
     {"y>=", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpGE>(std::move(children));
+        return Arena<Langfact::OpGE>::get_instance().create(std::move(children));
     }},
     {"y<", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpLT>(std::move(children));
+        return Arena<Langfact::OpLT>::get_instance().create(std::move(children));
     }},
     {"y<=", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpLE>(std::move(children));
+        return Arena<Langfact::OpLE>::get_instance().create(std::move(children));
     }},
     {"y&", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpConcat>(std::move(children));
+        return Arena<Langfact::OpConcat>::get_instance().create(std::move(children));
     }},
     {"y!", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpSheetRef>(std::move(children));
+        return Arena<Langfact::OpSheetRef>::get_instance().create(std::move(children));
     }},
     // {"y:", [](Langfact::Token::ChildrenList&& children) {
-    //     return std::make_unique<Langfact::OpRangeSeparator>(std::move(children));
+    //     return Arena<Langfact::OpRangeSeparator>::get_instance().create(std::move(children));
     // }},
     {"y^", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpExponentiate>(std::move(children));
+        return Arena<Langfact::OpExponentiate>::get_instance().create(std::move(children));
     }},
     {"n-", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpNegate>(std::move(children));
+        return Arena<Langfact::OpNegate>::get_instance().create(std::move(children));
     }},
     {"n+", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpUnaryPlus>(std::move(children));
+        return Arena<Langfact::OpUnaryPlus>::get_instance().create(std::move(children));
     }},
     {"y%", [](Langfact::Token::ChildrenList&& children) {
-        return std::make_unique<Langfact::OpPercent>(std::move(children));
+        return Arena<Langfact::OpPercent>::get_instance().create(std::move(children));
     }}
 };
 
+
 const int OperatorDispatcher::MAX_OP_LEN = 2;
 
-std::pair<std::unique_ptr<Operator>,int> OperatorDispatcher::dispatch(
+std::pair<Operator*,int> OperatorDispatcher::dispatch(
     std::string_view name, bool has_a_prior_token, Token::ChildrenList&& children
 ) {
     std::string formatted = (has_a_prior_token ? std::string("y") : std::string("n")) + std::string(name);

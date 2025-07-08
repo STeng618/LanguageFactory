@@ -8,7 +8,7 @@ namespace Langfact {
 
     class ValueDispatcher {
         public:
-        static std::unique_ptr<Token> dispatch(std::string content);
+        static Token* dispatch(std::string content);
     };
 }
 

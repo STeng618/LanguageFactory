@@ -6,15 +6,15 @@
 namespace Langfact {
     class FormulaWrapper: public Wrapper {
         protected: 
-        std::unique_ptr<Formula> m_formula; 
+        Formula* m_formula; 
 
         public: 
-        FormulaWrapper(std::unique_ptr<Formula> formula, Token::ChildrenList&& children = {})
+        FormulaWrapper(Formula* formula, Token::ChildrenList&& children = {})
         : Wrapper(std::move(children)), m_formula(std::move(formula)) {}
 
-        std::unique_ptr<Token> close() override {
+        Token* close() override {
             m_formula->set_children(std::move(m_children)); 
-            return std::move(m_formula);
+            return m_formula;
         } 
 
         void identify() const override {

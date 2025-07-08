@@ -4,6 +4,7 @@
 #include <formulaDispatcher.hpp>
 #include <valueDispatcher.hpp>
 #include <parser.hpp>
+#include <arena.hpp>
 
 using namespace Langfact;
 
@@ -14,6 +15,8 @@ int main() {
         auto token {Parser::parse(x)};
         token->print();
         printf("\n");
+
+        clear_all_arenas();
     }
 
 }

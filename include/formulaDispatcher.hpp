@@ -11,10 +11,10 @@ namespace Langfact {
 
     class FormulaDispatcher {
         private:
-        static const std::unordered_map<std::string_view, std::function<std::unique_ptr<Formula>(Token::ChildrenList&&)>> FUNC_MAP;
+        static const std::unordered_map<std::string_view, std::function<Formula*(Token::ChildrenList&&)>> FUNC_MAP;
 
         public:
-        static std::unique_ptr<Formula> dispatch(std::string_view name, Token::ChildrenList&& children = {});
+        static Formula* dispatch(std::string_view name, Token::ChildrenList&& children = {});
     };
 }
 
