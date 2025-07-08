@@ -1,7 +1,8 @@
+#include <iostream> 
 #include <valueDispatcher.hpp>
 #include <value/value.hpp>
 #include <value/cellReference.hpp>
-#include <iostream> 
+#include <value/fast_float.h>
 
 using namespace Langfact;
 
@@ -41,14 +42,12 @@ std::unique_ptr<Token> ValueDispatcher::dispatch(std::string expr) {
     auto isInt_intVal {parse_int(expr)};
     if (isInt_intVal.first) return std::make_unique<Value<int>>(isInt_intVal.second);
 
-    try {
-        size_t idx;
-        double int_val = std::stod(expr, &idx);
-        if (idx == expr.size()) {
-           return std::make_unique<Value<double>>(int_val); 
-        }
-    } catch (...) {} 
-
+    double value;
+    auto result = fast_float::from_chars(expr.data(), expr.data() + expr.size(), value);
+    if (result.ec == std::errc() && result.ptr == expr.data() + expr.size()) {
+        return std::make_unique<Value<double>>(value);
+    }
+    
     if (expr == "TRUE") return std::make_unique<Value<bool>>(true);
     if (expr == "FALSE") return std::make_unique<Value<bool>>(false);
 
