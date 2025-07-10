@@ -11,13 +11,6 @@ CellReference* CellReference::create(std::string_view expr) {
     bool is_second_part = false;
     short part_idx = 0;
     for (char c: expr) {
-        if (c == '$') continue; 
-        if (c == ':') {
-            if (is_second_part) return nullptr;
-            is_second_part = true;
-            part_idx = 0;
-            continue;
-        }
         if (c >= 'A' && c <= 'Z') {
             if (part_idx == 1) return nullptr;
             points[is_second_part * 2] = points[is_second_part * 2] * 26 + (c - 'A' + 1);
@@ -28,6 +21,13 @@ CellReference* CellReference::create(std::string_view expr) {
             part_idx = 1;
             if (points[is_second_part * 2 + 1] == 0 && c == '0') return nullptr; 
             points[is_second_part * 2 + 1] = points[is_second_part * 2 + 1] * 10 + (c - '0');
+            continue;
+        }
+        if (c == '$') continue; 
+        if (c == ':') {
+            if (is_second_part) return nullptr;
+            is_second_part = true;
+            part_idx = 0;
             continue;
         }
         return nullptr;
