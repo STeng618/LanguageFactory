@@ -56,6 +56,7 @@ static void Parse(benchmark::State& state) {
         for (auto& expr : expressions) {
             auto result = Langfact::Parser::parse(expr);
             benchmark::DoNotOptimize(result);
+            clear_all_arenas();
         }
     }
 }
