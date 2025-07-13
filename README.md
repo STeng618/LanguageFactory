@@ -2,34 +2,34 @@
 
 ## Background
 
-LanguageFactory is a structured-language parses which parses expressions that support arithmetic operators, function applications, and nested evaluation. It respects operator associativity and precedence rules, and handles prefix/postfix notations. The parser tokenizes valid expressions and constructs a token tree. This tree can be further processed for purposes such as evaluation, transformation, or code generation.
+LanguageFactory is a structured-language parser that parses expressions supporting arithmetic operators, function applications, and nested evaluation. It respects operator associativity and precedence rules, and handles prefix/postfix notations. The parser tokenizes valid expressions and constructs a token tree, which can be further processed for evaluation, transformation, or code generation.
 
-The project is designed with latency efficiency in mind, and several techniques were implemented to reduce memory and CPU overhead.
+This work was inspired by my project at Modular Asset Management, where we analyzed Excel expressions and predicted spill dimensions of spill formulae for analytical purposes. As such, the test expressions and parts of the parser are tailored to support Excel-like grammar. However, the architecture is easily extensible to other formula-oriented languages.
 
 ## Latency-Oriented Design
 
 ### Arena Allocation
 
-LanguageFactory uses an arena allocator to efficiently manage memory for tokens and nodes during parsing. Instead of allocating each token on the heap, memory is drawn from a pre-allocated contiguous buffer. This eliminates per-object `malloc` overhead and reduces fragmentation.
+LanguageFactory uses an arena allocator to efficiently manage memory for tokens and nodes during parsing. Instead of allocating each token individually on the heap, memory is drawn from a pre-allocated contiguous buffer. This eliminates per-object `malloc` overhead and reduces fragmentation.
 
-Arena allocation benefits include:
+Benefits include:
+- Fast allocation via pointer bumping
+- Instantaneous reset via a single offset rollback (`arena.clear()`)
 
-- Quick runtime allocation via pointer bumping
-- Fast reset via a single offset rollback (`arena.clear()`)
-
-This approach is well-suited for short-lived parse trees that do not require individual deallocation of objects.
+This approach is especially suitable for short-lived parse trees that do not require fine-grained memory reclamation.
 
 ### Hash-Based Symbol Resolution
 
-Operators and function symbols are resolved using a hash-based lookup system. The parser identifies relevant symbols using hashing techniques and dispatch tokens with the appropriate operator precedence, arity, and associativity.
+Operators and function symbols are resolved using a hash-based lookup system. The parser identifies symbols via hashing and dispatches tokens with the appropriate precedence, arity, and associativity.
 
-This results in:
+Advantages include:
+
 - Clean extensibility for adding new operators or functions
-- Separation of symbol logic from parse logic
+- Decoupling of symbol metadata from parsing logic
 
 ### Contiguous Token Tree Layout
 
-Tokens and token nodes are allocated contiguously in memory through the arena. This improves cache locality during parsing and later traversal of the token tree. Small object sizes and reduced pointer indirection also contribute to faster execution.
+Tokens and token nodes are allocated contiguously in memory through the arena. This improves cache locality during parsing and later traversal of the token tree. 
 
 ## Current Status
 
