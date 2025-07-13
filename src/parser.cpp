@@ -62,6 +62,8 @@ Token* Parser::parse(std::string_view expr) {
     int formula_start = -1; 
     std::vector<Token*> token_stack{}; 
     std::vector<Operator*> operator_stack{};  
+    token_stack.reserve(1024);
+    operator_stack.reserve(512);
     bool has_a_prior_token = false;
 
     // This is entirely based on whether the #tokens meets the #expected arguments
