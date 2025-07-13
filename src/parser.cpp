@@ -131,7 +131,7 @@ Token* Parser::parse(std::string_view expr) {
 
         while (
             num_token_in_wrapper < num_token_total
-            && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]) == nullptr
+            && token_stack[num_token_total - 1 - num_token_in_wrapper]->m_token_type != TokenType::WRAPPER
         ) {
             num_token_in_wrapper++;
         }
@@ -139,7 +139,7 @@ Token* Parser::parse(std::string_view expr) {
             throw std::runtime_error("No opening wrapper token!");
         }
 
-        Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
+        Wrapper* owner = static_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
         Token::ChildrenList children {};
         children.reserve(num_token_in_wrapper);
         for (int i = 0; i < num_token_in_wrapper; i++) {

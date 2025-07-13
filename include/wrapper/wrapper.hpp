@@ -9,7 +9,8 @@ namespace Langfact {
 
     class Wrapper: public Token {
         public:
-        Wrapper(Token::ChildrenList children = {}): Token(std::move(children)) {}
+        Wrapper(Token::ChildrenList children = {}, TokenType token_type = TokenType::WRAPPER)
+        : Token(std::move(children), token_type) {}
 
         /*
             Closes a wrapper token. There are 3 cases: 

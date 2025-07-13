@@ -7,16 +7,23 @@
 
 namespace Langfact {
 
+    enum class TokenType {
+        UNKNOWN, 
+        GENERAL,
+        WRAPPER,
+    };
+
     class Token {
         public: 
         using ChildrenList = std::vector<Token*>;  
-
+        
         protected:
         ChildrenList m_children {};
 
         public: 
-        Token(ChildrenList&& children = {}) 
-            : m_children{std::move(children)}
+        const TokenType m_token_type;
+        Token(ChildrenList&& children = {}, TokenType token_type = TokenType::GENERAL) 
+            : m_children{std::move(children)}, m_token_type(token_type)
         {
             // m_children.reserve(10);
         }
