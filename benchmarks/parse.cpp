@@ -5,6 +5,7 @@
 #include <random>
 #include <cstdlib> 
 #include <parser.hpp>  
+#include <arena.hpp>
 
 std::mt19937 rng;
 std::uniform_int_distribution<size_t> size_dist(1, 1024);
@@ -17,6 +18,7 @@ constexpr size_t ALLOC_COUNT = 100;
 class RandomHeapParser : public benchmark::Fixture {
     public:
     void SetUp(const benchmark::State& state) override {
+        (void)state;
         junk.reserve(ALLOC_COUNT);
         for (size_t i = 0; i < ALLOC_COUNT; i++) {
             junk.push_back(malloc(size_dist(rng)));
@@ -29,6 +31,7 @@ class RandomHeapParser : public benchmark::Fixture {
         }
     }
     void TearDown(const benchmark::State& state) override {
+        (void)state;
         for (size_t i = 0; i < ALLOC_COUNT; i++) {
             free(junk[i]);
             junk[i] = nullptr;
