@@ -8,10 +8,6 @@
 namespace Langfact {
 
     class OperatorDispatcher {
-        private:
-
-        static const std::unordered_map<std::string_view, std::function<Operator*(Token::ChildrenList&&)>> OP_MAP;
-
         public:
         static const int MAX_OP_LEN;
         static std::pair<Operator*,int> dispatch(
