@@ -41,13 +41,17 @@ The parser can handle a wide class of arithmetic expressions including:
 - Prefix and postfix unary operators (e.g. `-A1`, `B1%`)
 
 ## Getting Started
-To get started with LanguageFactory, clone the repository and build the project. Create a build directory and run CMake:
+To get started with LanguageFactory, clone the repository and build the project.
 
 ```bash
-mkdir build && cd build
+git clone --recurse-submodules https://github.com/STeng618/LanguageFactory.git
+mkdir build
+cd build
 cmake ..
 make
 ```
+
+It should just work. But it is a CPP project afterall :D
 
 Run the langfact binary and supply valid expressions:
 ```bash
