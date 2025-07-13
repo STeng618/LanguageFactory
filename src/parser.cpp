@@ -76,15 +76,8 @@ Token* Parser::parse(std::string_view expr) {
 
     auto trigger_one_op = [&]() -> void {
         auto from = token_stack.end() - operator_stack.back()->m_expected_num_args;
-        
-        std::vector<Token*> args; 
-        args.reserve(operator_stack.back()->m_expected_num_args);
-        for (auto it = from; it != token_stack.end(); it++) {
-            args.push_back(*it);
-        }
-        
+        operator_stack.back()->set_children(from, token_stack.end());
         token_stack.erase(from, token_stack.end());
-        operator_stack.back()->set_children(std::move(args));
         token_stack.push_back(std::move(operator_stack.back()));
         operator_stack.pop_back();
     };
@@ -140,12 +133,7 @@ Token* Parser::parse(std::string_view expr) {
         }
 
         Wrapper* owner = static_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
-        Token::ChildrenList children {};
-        children.reserve(num_token_in_wrapper);
-        for (int i = 0; i < num_token_in_wrapper; i++) {
-            children.push_back(token_stack[num_token_total - num_token_in_wrapper + i]);
-        }
-        owner->set_children(std::move(children));
+        owner->set_children(token_stack.end() - num_token_in_wrapper, token_stack.end());
 
         for (int i = 0; i < num_token_in_wrapper; i++) {
             token_stack.pop_back();

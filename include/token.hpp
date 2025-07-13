@@ -16,7 +16,7 @@ namespace Langfact {
     class Token {
         public: 
         using ChildrenList = std::vector<Token*>;  
-        
+
         protected:
         ChildrenList m_children {};
 
@@ -28,8 +28,12 @@ namespace Langfact {
             // m_children.reserve(10);
         }
 
-        virtual void set_children(ChildrenList&& children) {
+        void set_children(ChildrenList&& children) {
             m_children = std::move(children);
+        }
+
+        void set_children(std::vector<Token*>::iterator start, std::vector<Token*>::iterator end) {
+            m_children.assign(start, end);
         }
 
         virtual void identify() const {
