@@ -9,14 +9,12 @@
 using namespace Langfact;
 
 int main() {
+    std::string x; 
     while(1) {
-        std::string x; 
         std::getline(std::cin, x);
         auto token {Parser::parse(x)};
-        token->print();
+        token->print_tree();
         printf("\n");
-
         clear_all_arenas();
     }
-
 }
