@@ -2,18 +2,9 @@
 #include <operatorDispatcher.hpp>
 #include <formula/operator.hpp>
 #include <arena.hpp>
+#include <hash.hpp>
 
 using namespace Langfact;
-
-template <size_t N>
-constexpr uint32_t hash(const char (&str)[N]) {
-    uint32_t hash = 2166136261u;
-    for (size_t i = 0; i < N - 1; i++) { // Last char assumed to be '\0' 
-        hash ^= static_cast<unsigned char>(str[i]);
-        hash *= 16777619u;
-    }
-    return hash;
-}
 
 constexpr uint32_t h_plus  = hash("+");
 constexpr uint32_t h_minus = hash("-");
@@ -29,17 +20,6 @@ constexpr uint32_t h_amp   = hash("&");
 constexpr uint32_t h_excl  = hash("!");
 constexpr uint32_t h_caret = hash("^");
 constexpr uint32_t h_percent = hash("%");
-
-
-template <size_t N>
-constexpr bool are_unique_hashes(const std::array<uint32_t, N>& hashes) {
-    for (size_t i = 0; i < N; i++) {
-        for (size_t j = i + 1; j < N; j++) {
-            if (hashes[i] == hashes[j]) return false;
-        }
-    }
-    return true;
-}
 
 constexpr std::array<uint32_t, 14> op_hashes = {
     h_plus, h_minus, h_star, h_slash, h_eq, h_neq,
