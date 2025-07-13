@@ -16,12 +16,18 @@ class ArenaBase {
 void register_arena(ArenaBase* arena);
 void clear_all_arenas();
 
-template <typename T, size_t N = 500>
+template <typename T>
 class Arena : public ArenaBase {
 
     private:
-        std::byte m_buffer[N][sizeof(T)];
-        Arena() : ArenaBase() {};
+        // std::byte m_buffer[N][sizeof(T)];
+        T* m_buffer;
+        size_t m_n;
+        Arena(size_t n = 500) : ArenaBase() {
+            m_buffer = static_cast<T*>(malloc(n * sizeof(T)));
+            m_n = n;
+        };
+        ~Arena() { free(m_buffer); }
 
         Arena(const Arena&) = delete;
         Arena& operator=(const Arena&) = delete;
@@ -30,7 +36,7 @@ class Arena : public ArenaBase {
 
     public:
         T* reserve() {
-            if (m_offset >= N) {
+            if (m_offset >= m_n) {
                 throw std::runtime_error("Arena has reached capacity");
             }
             return reinterpret_cast<T*>(&m_buffer[m_offset++]);
