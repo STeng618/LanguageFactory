@@ -42,6 +42,7 @@ BENCHMARK_DEFINE_F(RandomHeapParser, ParseRandom)(benchmark::State& state) {
         for (const auto& expr : expressions) {
             auto result = Langfact::Parser::parse(expr);
             benchmark::DoNotOptimize(result);
+            clear_all_arenas();
         }
     }
 }
