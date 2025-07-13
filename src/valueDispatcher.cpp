@@ -31,13 +31,13 @@ static constexpr std::pair<bool,int> parse_int(std::string_view expr) {
     return {true, ans};
 }
 
-Token* ValueDispatcher::dispatch(std::string expr) {
+Token* ValueDispatcher::dispatch(std::string_view expr) {
 
     if (
         (expr[0] == '\'' && expr.back() == '\'') 
         || (expr[0] == '\"' && expr.back() == '\"') 
     ) {
-        return Arena<Value<std::string>>::get_instance().create(expr.substr(1, expr.size() - 2));
+        return Arena<Value<std::string_view>>::get_instance().create(expr.substr(1, expr.size() - 2));
     }
 
     auto isInt_intVal {parse_int(expr)};
@@ -57,5 +57,5 @@ Token* ValueDispatcher::dispatch(std::string expr) {
     auto cell_ref {CellReference::create(expr)};
     if (cell_ref != nullptr) return cell_ref;
 
-    return Arena<Value<std::string>>::get_instance().create(expr);
+    return Arena<Value<std::string_view>>::get_instance().create(expr);
 }

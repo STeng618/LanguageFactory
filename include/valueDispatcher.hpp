@@ -8,7 +8,7 @@ namespace Langfact {
 
     class ValueDispatcher {
         public:
-        static Token* dispatch(std::string content);
+        static Token* dispatch(std::string_view content);
     };
 }
 

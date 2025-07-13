@@ -38,7 +38,7 @@ void print_stack(const T& container) {
     std::cout << std::endl;
 }
 
-Token* Parser::parse (std::string expr) {
+Token* Parser::parse(std::string_view expr) {
 
     int idx = 0; 
     int n = (int)expr.size();
@@ -55,9 +55,9 @@ Token* Parser::parse (std::string expr) {
     }
 
     // Wrap expression in ()
-    expr[idx] = '(';
-    expr.push_back(')'); 
-    n++;
+    // expr[idx] = '(';
+    // expr.push_back(')'); 
+    // n++;
 
     int formula_start = -1; 
     std::vector<Token*> token_stack{}; 
@@ -103,6 +103,65 @@ Token* Parser::parse (std::string expr) {
         while (can_trigger_latest_op()) trigger_one_op(); 
     };
 
+    auto process_opening = [&]() -> void {
+        if (formula_start == -1) {
+            token_stack.push_back(Arena<Wrapper>::get_instance().create());
+        } else {
+            token_stack.push_back(Arena<FormulaWrapper>::get_instance().create(
+                FormulaDispatcher::dispatch(expr.substr(formula_start, idx - formula_start)) 
+            ));
+            formula_start = -1; 
+        }
+        operator_stack.push_back(nullptr);
+        has_a_prior_token = false;
+        idx++;
+    };
+
+    auto process_closing = [&]() ->void {
+        clear_op_stack();
+
+        if (!has_a_prior_token) {
+            token_stack.push_back(Arena<EmptyToken>::get_instance().create());
+        }
+
+        int num_token_in_wrapper = 0; 
+        int num_token_total = static_cast<int>(token_stack.size());
+
+        while (
+            num_token_in_wrapper < num_token_total
+            && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]) == nullptr
+        ) {
+            num_token_in_wrapper++;
+        }
+        if (num_token_in_wrapper == num_token_total) {
+            throw std::runtime_error("No opening wrapper token!");
+        }
+
+        Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
+        Token::ChildrenList children {};
+        children.reserve(num_token_in_wrapper);
+        for (int i = 0; i < num_token_in_wrapper; i++) {
+            children.push_back(token_stack[num_token_total - num_token_in_wrapper + i]);
+        }
+        owner->set_children(std::move(children));
+
+        for (int i = 0; i < num_token_in_wrapper; i++) {
+            token_stack.pop_back();
+            assert(!operator_stack.back()); 
+            operator_stack.pop_back();
+        }
+        auto closed_token {owner->close()};
+        bool is_able_to_close = closed_token != nullptr;
+        if (is_able_to_close) {
+            token_stack.pop_back();
+            token_stack.push_back(std::move(closed_token));
+        }
+        has_a_prior_token = true;
+        idx++;
+    };
+
+
+    process_opening();
     while (idx < n) {
         
         if (expr[idx] == ' ' or expr[idx] == '\n') {
@@ -136,61 +195,12 @@ Token* Parser::parse (std::string expr) {
         } 
 
         if (expr[idx] == '(') {
-            if (formula_start == -1) {
-                token_stack.push_back(Arena<Wrapper>::get_instance().create());
-            } else {
-                token_stack.push_back(Arena<FormulaWrapper>::get_instance().create(
-                    FormulaDispatcher::dispatch(expr.substr(formula_start, idx - formula_start)) 
-                ));
-                formula_start = -1; 
-            }
-            operator_stack.push_back(nullptr);
-            has_a_prior_token = false;
-            idx++; 
+            process_opening();
             continue; 
         }
 
         if (expr[idx] == ')') {
-            clear_op_stack();
-
-            if (!has_a_prior_token) {
-                token_stack.push_back(Arena<EmptyToken>::get_instance().create());
-            }
-
-            int num_token_in_wrapper = 0; 
-            int num_token_total = static_cast<int>(token_stack.size());
-
-            while (
-                num_token_in_wrapper < num_token_total
-                && dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]) == nullptr
-            ) {
-                num_token_in_wrapper++;
-            }
-            if (num_token_in_wrapper == num_token_total) {
-                throw std::runtime_error("No opening wrapper token!");
-            }
-
-            Wrapper* owner = dynamic_cast<Wrapper*>(token_stack[num_token_total - 1 - num_token_in_wrapper]); 
-            Token::ChildrenList children {};
-            children.reserve(num_token_in_wrapper);
-            for (int i = 0; i < num_token_in_wrapper; i++) {
-                children.push_back(token_stack[num_token_total - num_token_in_wrapper + i]);
-            }
-            owner->set_children(std::move(children));
-
-            for (int i = 0; i < num_token_in_wrapper; i++) {
-                token_stack.pop_back();
-                assert(!operator_stack.back()); 
-                operator_stack.pop_back();
-            }
-            auto closed_token {owner->close()};
-            bool is_able_to_close = closed_token != nullptr;
-            if (is_able_to_close) {
-                token_stack.pop_back();
-                token_stack.push_back(std::move(closed_token));
-            }
-            has_a_prior_token = true;
-            idx++;
+            process_closing();
             continue; 
         }
 
@@ -219,6 +229,8 @@ Token* Parser::parse (std::string expr) {
 
         throw std::runtime_error("Unrecognised case"); 
     }
+    process_closing();
+
     if (token_stack.size() != 1) {
         throw std::runtime_error("Unable to parse");
     }
