@@ -9,7 +9,7 @@
 namespace Langfact {
     class CellReference : public Token {
         public:
-        const std::string m_repr;
+        const std::string_view m_repr;
         const int m_l, m_t, m_r, m_b;
 
         static CellReference* create(std::string_view expr);
