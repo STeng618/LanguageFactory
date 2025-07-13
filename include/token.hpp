@@ -18,7 +18,7 @@ namespace Langfact {
         Token(ChildrenList&& children = {}) 
             : m_children{std::move(children)}
         {
-            m_children.reserve(10);
+            // m_children.reserve(10);
         }
 
         virtual void set_children(ChildrenList&& children) {
